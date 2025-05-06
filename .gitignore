@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.env
+
+# Logs
+logs/
+*.log
+
+# MacOS / Linux
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# DB (si SQLite locale ou dump temporaire)
+*.sqlite
+*.db
