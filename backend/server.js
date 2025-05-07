@@ -28,6 +28,15 @@ Product.belongsTo(Restaurant, { foreignKey: 'restaurant_id' });
 User.hasOne(Restaurant, { foreignKey: 'user_id' });
 Restaurant.belongsTo(User, { foreignKey: 'user_id' });
 
+const ProductOption = require('./models/ProductOption');
+
+// Relations
+Product.hasMany(ProductOption, { foreignKey: 'product_id' });
+ProductOption.belongsTo(Product, { foreignKey: 'product_id' });
+
+
+const productOptionRoutes = require('./routes/productOptionRoutes');
+app.use('/api/products', productOptionRoutes);
 
 
 const productRoutes = require('./routes/productRoutes');
@@ -38,6 +47,21 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 
 
+
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
+
+const Payment = require('./models/Payment');
+
+User.hasMany(Payment, { foreignKey: 'user_id' });
+Payment.belongsTo(User, { foreignKey: 'user_id' });
+
+
+const Customer = require('./models/Customer');
+
+
+
+
 app.get('/', (req, res) => {
   res.send('Resaquick backend is running!');
 });
@@ -45,9 +69,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-
-
 
 sequelize.authenticate()
   .then(() => console.log('🔌 Connexion à PostgreSQL réussie !'))
