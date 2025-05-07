@@ -1,37 +1,32 @@
-// backend/models/Restaurant.js
+// backend/models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Restaurant = sequelize.define('Restaurant', {
+const User = sequelize.define('User', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  description: {
-    type: DataTypes.TEXT,
-  },
-  logo_url: {
+  email: {
     type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
+    validate: { isEmail: true },
   },
-  cover_url: {
+  password: {
     type: DataTypes.STRING,
+    allowNull: false,
   },
-  address: {
+  role: {
     type: DataTypes.STRING,
-  },
-  phone: {
-    type: DataTypes.STRING,
+    defaultValue: 'restaurateur', // plus tard : admin, client, etc.
   },
   is_active: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },  
 }, {
   timestamps: true,
 });
 
-module.exports = Restaurant;
+module.exports = User;

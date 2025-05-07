@@ -14,34 +14,48 @@ router.get('/', async (req, res) => {
 });
 
 
-// backend/routes/restaurantRoutes.js
+const authenticate = require('../middleware/authMiddleware');
 
-// ... route GET déjà existante
+router.post('/', authenticate, async (req, res) => {
+  try {
+    const { name, description, logo_url, cover_url, address, phone } = req.body;
 
-router.post('/', async (req, res) => {
+    const userId = req.user.userId; // injecté par le token JWT
+
+    const newRestaurant = await Restaurant.create({
+      name,
+      description,
+      logo_url,
+      cover_url,
+      address,
+      phone,
+      user_id: userId // 👈 c’est ça qui manquait
+    });
+
+    res.status(201).json(newRestaurant);
+  } catch (error) {
+    console.error('Erreur lors de la création du restaurant :', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+router.get('/me', authenticate, async (req, res) => {
     try {
-      const { name, description, logo_url, cover_url, address, phone } = req.body;
-  
-      if (!name || !address) {
-        return res.status(400).json({ error: 'Le nom et l’adresse sont obligatoires.' });
-      }
-  
-      const newRestaurant = await Restaurant.create({
-        name,
-        description,
-        logo_url,
-        cover_url,
-        address,
-        phone,
+      const restaurant = await Restaurant.findOne({
+        where: { user_id: req.user.userId }
       });
   
-      res.status(201).json(newRestaurant);
+      if (!restaurant) {
+        return res.status(404).json({ error: 'Aucun restaurant trouvé pour cet utilisateur.' });
+      }
+  
+      res.json(restaurant);
     } catch (error) {
-      console.error('Erreur lors de la création du restaurant :', error);
+      console.error('Erreur GET /me :', error);
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
-
 
 
 // backend/routes/restaurantRoutes.js
@@ -105,5 +119,27 @@ router.delete('/:id', async (req, res) => {
       res.status(500).json({ error: 'Erreur serveur' });
     }
   });
-  
+
+
+// backend/routes/restaurantRoutes.js
+
+const Product = require('../models/Product'); // ajoute cette ligne si ce n’est pas déjà fait
+
+// ...
+
+// GET /api/restaurants/:id/products
+router.get('/:id/products', async (req, res) => {
+  try {
+    const restaurantId = req.params.id;
+    const products = await Product.findAll({
+      where: { restaurant_id: restaurantId },
+    });
+
+    res.json(products);
+  } catch (error) {
+    console.error('Erreur récupération produits restaurant :', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 module.exports = router;
