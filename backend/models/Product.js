@@ -16,7 +16,16 @@ const Product = sequelize.define('Product', {
   is_available: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+  },
+  restaurant_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Restaurants',
+      key: 'id'
+    }
   }
+  
 }, {
   timestamps: true,
 });

@@ -59,7 +59,27 @@ Payment.belongsTo(User, { foreignKey: 'user_id' });
 
 const Customer = require('./models/Customer');
 
+const customerAuthRoutes = require('./routes/customerAuthRoutes');
+app.use('/api/customers', customerAuthRoutes);
 
+const customerRoutes = require('./routes/customerRoutes');
+app.use('/api/customers', customerRoutes);
+
+const Order = require('./models/Order');
+
+Customer.hasMany(Order, { foreignKey: 'customer_id' });
+Order.belongsTo(Customer, { foreignKey: 'customer_id' });
+
+Restaurant.hasMany(Order, { foreignKey: 'restaurant_id' });
+Order.belongsTo(Restaurant, { foreignKey: 'restaurant_id' });
+
+const OrderItem = require('./models/OrderItem');
+
+Order.hasMany(OrderItem, { foreignKey: 'order_id' });
+OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
+
+Product.hasMany(OrderItem, { foreignKey: 'product_id' });
+OrderItem.belongsTo(Product, { foreignKey: 'product_id' });
 
 
 app.get('/', (req, res) => {
@@ -75,6 +95,6 @@ sequelize.authenticate()
   .catch(err => console.error('❌ Erreur de connexion à PostgreSQL :', err));
 
 
-sequelize.sync({ alter: true }) // crée ou met à jour les tables si besoin
+sequelize.sync({ force: true }) // crée ou met à jour les tables si besoin
     .then(() => console.log('✅ Tables synchronisées'))
     .catch(err => console.error('❌ Erreur de synchronisation des tables :', err));
