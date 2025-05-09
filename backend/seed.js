@@ -103,7 +103,19 @@ async function seed() {
         total_price: 16,
         selected_options: [{ name: 'Sauce piquante', extra_price: 0.8 }]
       }
-    ]);
+  ]);
+
+  const adminPassword = await bcrypt.hash('admin123', 10);
+
+await User.create({
+  name: 'Super Admin',
+  email: 'admin@resaquick.com',
+  password: adminPassword,
+  role: 'admin'
+});
+
+
+    
 
     console.log('✅ Données seedées avec succès');
     process.exit();
