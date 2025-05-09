@@ -5,6 +5,8 @@ const authenticate = require('../middleware/authMiddleware');
 const isAdmin = require('../middleware/isAdmin');
 const User = require('../models/User');
 const Payment = require('../models/Payment');
+const Customer = require('../models/Customer');
+const Restauran = require('../models/Restauran');
 
 // Liste des restaurateurs
 router.get('/users', authenticate, isAdmin, async (req, res) => {
@@ -20,6 +22,21 @@ router.get('/users', authenticate, isAdmin, async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
+
+// Détails d'un restaurateur
+router.get('/users/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+      const user = await User.findByPk(req.params.id);
+      if (!user || user.role !== 'restaurateur') {
+        return res.status(404).json({ error: 'Restaurateur introuvable' });
+      }
+      
+      res.json(user);
+      } catch (error) {
+        console.error('Erreur récupération détails :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+      }
+    });
 
 // Désactiver un restaurateur
 router.put('/users/:id/deactivate', authenticate, isAdmin, async (req, res) => {
@@ -151,6 +168,67 @@ router.get('/stats/restaurateurs', authenticate, isAdmin, async (req, res) => {
       res.status(500).json({ error: 'Erreur serveur' });
     }
 });
-  
 
+
+// Afficher tous les administrateurs
+router.get('/admins', authenticate, isAdmin, async (req, res) => {
+  try {
+    const admins = await User.findAll({
+      where: { role: 'admin' },
+      attributes: ['id', 'name', 'email', 'createdAt', 'updatedAt', 'role', 'password', 'is_active']
+    });
+    res.json(admins);
+  } catch (error) {
+    console.error('Erreur récupération administrateurs :', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Détails d'un administrateur
+router.get('/admins/:id', authenticate, isAdmin, async (req, res) => {
+  try {
+    const admin = await User.findByPk(req.params.id);
+    if (!admin || admin.role !== 'admin') {
+      return res.status(404).json({ error: 'Administrateur introuvable' });
+    }
+
+    res.json(admin);
+  } catch (error) {
+    console.error('Erreur récupération détails :', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+router.get('/customers', authenticate, isAdmin, async (req, res) => {
+  try {
+    const customers = await Customer.findAll({
+      attributes: ['id', 'first_name', 'last_name', 'email', 'createdAt', 'is_active']
+    });
+
+    res.json(customers);
+  } catch (error) {
+    console.error('Erreur récupération clients :', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+
+// Route pour obtenir les détails d'un client spécifique
+router.get('/customers/:id', authenticate, isAdmin, async (req, res) => {
+  try {
+    const customer = await Customer.findByPk(req.params.id, {
+      attributes: { exclude: ['password'] }
+    });
+    
+    if (!customer) {
+      return res.status(404).json({ message: 'Client non trouvé' });
+    }
+    
+    res.json(customer);
+  } catch (error) {
+    console.error('Error fetching customer details:', error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des détails du client' });
+  }
+});
 module.exports = router;

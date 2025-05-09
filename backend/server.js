@@ -95,6 +95,6 @@ sequelize.authenticate()
   .catch(err => console.error('❌ Erreur de connexion à PostgreSQL :', err));
 
 
-sequelize.sync({ force: true }) // crée ou met à jour les tables si besoin
+sequelize.sync({ alter: true }) // crée ou met à jour les tables si besoin
     .then(() => console.log('✅ Tables synchronisées'))
     .catch(err => console.error('❌ Erreur de synchronisation des tables :', err));
